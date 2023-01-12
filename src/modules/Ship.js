@@ -76,13 +76,17 @@ export class Ship {
     if (this.sensor) this.sensor.update(borders, obstacles);
   }
 
-  #checkDamage(borders, obstacles) {
+  #checkDamage(borders, obstacles, ships = []) {
     for (let i = 0; i < borders.length; i++) {
       if (polyIntersect(this.polygon, borders[i])) return true;
     }
 
     for (let i = 0; i < obstacles.length; i++) {
-      if (polyIntersect(this.polygon, obstacles[i].polygon)) return true;
+      if (polyIntersect(this.polygon, obstacles[i])) return true;
+    }
+
+    for (let i = 0; i < ships.length; i++) {
+      if (polyIntersect(this.polygon, ships[i].polygon)) return true;
     }
 
     return false;

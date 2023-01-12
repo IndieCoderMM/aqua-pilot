@@ -1,6 +1,6 @@
 import './index.css';
 import { Ship } from './modules/Ship';
-import Ocean from './modules/Ocean';
+import Rect from './modules/Rect';
 import ShipRed from './assets/ships/redShip.png';
 
 const canvas = document.getElementById('main-canvas');
@@ -19,17 +19,24 @@ const ship = new Ship({
   ctrlType: 'KEYS',
 });
 
-const ocean = new Ocean(
+const ocean = new Rect(
   canvas.width / 2,
   canvas.height / 2,
   canvas.width,
   canvas.height,
 );
 
+const islands = [
+  new Rect(100, 100, 100, 100),
+  new Rect(200, 230, 50, 30),
+  new Rect(400, 300, 50, 30),
+];
+
 function run() {
-  ship.update(ocean.borders);
+  ship.update(ocean.borders, islands.borders);
   canvas.height = window.innerHeight - 10;
   ocean.draw(ctx);
+  islands.forEach((i) => i.draw(ctx, true));
   ship.draw(ctx);
   requestAnimationFrame(run);
 }

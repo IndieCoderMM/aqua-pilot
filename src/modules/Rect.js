@@ -1,6 +1,4 @@
-import { lerp } from './utils';
-
-export default class Ocean {
+export default class Rect {
   constructor(x, y, width, height) {
     this.x = x;
     this.y = y;
@@ -12,21 +10,26 @@ export default class Ocean {
     this.top = y - this.height / 2;
     this.bottom = y + this.height / 2;
 
-    const topLeft = { x: this.left, y: this.top };
-    const topRight = { x: this.right, y: this.top };
-    const bottomLeft = { x: this.left, y: this.bottom };
-    const bottomRight = { x: this.right, y: this.bottom };
+    this.topLeft = { x: this.left, y: this.top };
+    this.topRight = { x: this.right, y: this.top };
+    this.bottomLeft = { x: this.left, y: this.bottom };
+    this.bottomRight = { x: this.right, y: this.bottom };
     this.borders = [
-      [topLeft, bottomLeft],
-      [topRight, bottomRight],
-      [topLeft, topRight],
-      [bottomRight, bottomLeft],
+      [this.topLeft, this.bottomLeft],
+      [this.topRight, this.bottomRight],
+      [this.topLeft, this.topRight],
+      [this.bottomRight, this.bottomLeft],
     ];
   }
 
-  draw(ctx) {
+  draw(ctx, fill = false) {
     ctx.lineWidth = 5;
     ctx.strokeStyle = 'white';
+    if (fill) {
+      ctx.fillStyle = 'orange';
+      ctx.rect(this.topLeft.x, this.topLeft.y, this.width, this.height);
+      return;
+    }
     ctx.setLineDash([10, 10]);
     this.borders.forEach((b) => {
       ctx.beginPath();

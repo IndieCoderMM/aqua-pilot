@@ -34,14 +34,24 @@ export default class Sensor {
     }
   }
 
-  #getReading(ray, borders, obstacles) {
+  #getReading(ray, borders, obstacles, ships = []) {
     let touches = [];
+
     for (let i = 0; i < borders.length; i++) {
       const touch = getIntersect(ray[0], ray[1], borders[i][0], borders[i][1]);
       if (touch) touches.push(touch);
     }
+    for (let i = 0; i < obstacles.length; i++) {
+      const touch = getIntersect(
+        ray[0],
+        ray[1],
+        obstacles[i][0],
+        obstacles[i][1],
+      );
+      if (touch) touches.push(touch);
+    }
 
-    obstacles.forEach((o) => {
+    ships.forEach((o) => {
       for (let i = 0; i < o.polygon.length; i++) {
         const value = getIntersect(
           ray[0],
@@ -56,7 +66,7 @@ export default class Sensor {
     if (touches.length == 0) {
       return null;
     }
-    const offsets = touches.map((t) => t.offsets);
+    const offsets = touches.map((t) => t.offset);
     const minOffset = Math.min(...offsets);
     return touches.find((t) => t.offset === minOffset);
   }
