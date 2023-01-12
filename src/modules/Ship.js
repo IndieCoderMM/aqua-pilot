@@ -1,7 +1,9 @@
 import { Controller } from './Control';
+import Sensor from './Sensor';
+import { polyIntersect } from './utils';
 
 export class Ship {
-  constructor({ x, y, width, height, maxSpeed, imgPath }) {
+  constructor({ x, y, width, height, maxSpeed, imgPath, ctrlType }) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -12,13 +14,15 @@ export class Ship {
     this.image.onload = () => {
       this.loaded = true;
     };
-    this.angle = 0;
+    if (ctrlType === 'KEYS') this.sensor = new Sensor(this);
     this.controller = new Controller();
     this.polygon = this.#createPolygon();
 
+    this.angle = 0;
     this.speed = 0;
     this.accel = 0.1;
     this.friction = 0.05;
+    this.damaged = false;
   }
 
   #createPolygon() {
@@ -64,9 +68,24 @@ export class Ship {
     // console.log(this.x, this.y);
   }
 
-  update() {
+  update(borders, obstacles = []) {
+    if (this.damaged) return;
     this.#move();
     this.polygon = this.#createPolygon();
+    this.damaged = this.#checkDamage(borders, obstacles);
+    if (this.sensor) this.sensor.update(borders, obstacles);
+  }
+
+  #checkDamage(borders, obstacles) {
+    for (let i = 0; i < borders.length; i++) {
+      if (polyIntersect(this.polygon, borders[i])) return true;
+    }
+
+    for (let i = 0; i < obstacles.length; i++) {
+      if (polyIntersect(this.polygon, obstacles[i].polygon)) return true;
+    }
+
+    return false;
   }
 
   draw(ctx) {
@@ -79,8 +98,9 @@ export class Ship {
     ctx.translate(this.x, this.y);
     ctx.rotate(-this.angle);
     ctx.rect(-this.width / 2, -this.height / 2, this.width, this.height);
-    ctx.drawImage(this.image, -this.width / 2, -this.height / 2);
-    // ctx.fill();
+    ctx.fill();
+    ctx.drawImage(this.image, -this.width, -this.height);
     ctx.restore();
+    if (this.sensor) this.sensor.draw(ctx);
   }
 }
